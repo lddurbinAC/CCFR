@@ -41,6 +41,7 @@ ltp_for_comparison <- ltp_facilities_list |>
     "Ponsonby Community Centre - Leys Institute Gymnasium", # duplicate & closed
     "Howick Brass Band", # band
     "Papakura Brass Band", # band
+    "North Shore Brass", # band
     "City of Manukau Pipe Band", # band
     "Manukau Concert Band (MCB)", #band
     "Papakura Pipe Band", #band
