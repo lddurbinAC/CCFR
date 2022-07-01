@@ -91,7 +91,8 @@ facilities <- bind_rows(
   .id = "delivery_model") |> 
   left_join(name_corrections |> select(-delivery_model), by = c("name" = "our_name")) |> 
   mutate(name = if_else(!is.na(corrected_name), corrected_name, name), .keep = "unused") |> 
-  filter(!name %in% c(
+  filter(designation !="Community Library",
+    !name %in% c(
     "Waitakere Arts and Cultural Devt Trust", # partner
     "Acacia Court Hall", # out of scope
     "Albany Hall", # out of scope, community leasing
@@ -103,8 +104,18 @@ facilities <- bind_rows(
     # Shadbolt House?
   ))
 
-# join the LTP data with our facilities data
-combined_facilities_list <- left_join(ltp_for_comparison, facilities, by = c("name", "local_board", "delivery_model"))
+# here we separate out any facilities from the CCFR list that need to be added to the LTP list
+new_facilities <- facilities |> 
+  filter(facility_id == "A304") |> 
+  rename(designation.y = designation)
+
+# join the LTP data with our facilities data, include any new facilities
+combined_facilities_list <- left_join(
+  ltp_for_comparison,
+  facilities,
+  by = c("name", "local_board", "delivery_model")
+  ) |> 
+  bind_rows(new_facilities)
 
 
 # Validate data -------------------------------------------------------------------
