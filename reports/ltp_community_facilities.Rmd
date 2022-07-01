@@ -1,0 +1,117 @@
+---
+title: "Share of Community-led Facilities"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+date: '2022-07-01'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, fig.dim = c(8, 6),dpi=300)
+
+library(ggplot2) # Create Elegant Data Visualisations Using the Grammar of Graphics
+library(dplyr) # A Grammar of Data Manipulation
+library(patchwork) # The Composer of Plots
+library(ggtext) # Improved Text Rendering Support for 'ggplot2'
+library(pander) # An R 'Pandoc' Writer
+```
+
+```{r prep_data}
+# filter by Local Board and service delivery model, then plot coordinates for the visual
+choose_facilities <- function(local_board) {
+  facilities |> 
+    filter(local_board == {{local_board}}) |> 
+    arrange(name) |> 
+    mutate(coord_x = (row_number()-1) %% 6, coord_y = floor((row_number()/6)-0.1))
+}
+
+count_facilities <- function(local_board, delivery_model) {
+  facilities |> 
+    count(local_board, delivery_model) |> 
+    filter(local_board == {{local_board}} & delivery_model == {{delivery_model}}) |> 
+    pull(n)
+}
+
+build_block_visual <- function(facilities_blocks) {
+  cols <- c("council led" = "#007CB9", "community led" = "#6E963C")
+  community_count <- count_facilities(facilities_blocks$local_board[[1]], "community led")
+  council_count <- count_facilities(facilities_blocks$local_board[[1]], "council led")
+  
+  ggplot(data = facilities_blocks, aes(x = coord_x, y = -coord_y)) +
+    geom_point(aes(colour = delivery_model),shape=15,size=27) +
+    geom_text(aes(label = stringr::str_wrap(name, 10)), colour = "white", size = 2.8, fontface = "bold") +
+    scale_x_continuous(limits = c(-0.5,6.5)) +
+    scale_y_continuous(limits = c(-5.5,0.25)) +
+    scale_colour_manual(values = cols) +
+    theme_void() +
+    ggtitle(paste0("There are ", community_count, " <span style='color:", cols[["community led"]], "'><strong>community-led</strong></span> facilities and ", council_count, " <span style='color:", cols[["council led"]], "'><strong>Council-led</strong></span> facilities<br>in this Local Board")) +
+    theme(
+      legend.position = "none",
+      plot.title = element_markdown(lineheight = 1.1, size = 16, colour = "#515555")
+    ) 
+}
+
+path <- here::here("data")
+
+facilities <- readRDS(fs::dir_ls(path, glob = "*.rds")) |> filter(local_board != "Great Barrier")
+```
+
+## Introduction
+Welcome to the one-page guide on in-scope Connected Communities facilities for the FY22 LTP metric.
+
+```{r block_chart_template, eval=FALSE}
+choose_facilities(chosen_lb) |> 
+  build_block_visual()
+```
+
+
+```{r select_albert_eden, results='asis'}
+chosen_lb <- "Albert-Eden"
+pandoc.header(chosen_lb, level = 2)
+```
+
+```{r albert_eden, ref.label='block_chart_template'}
+```
+
+
+
+```{r select_devonport_takapuna, results='asis'}
+chosen_lb <- "Devonport-Takapuna"
+pandoc.header(chosen_lb, level = 2)
+```
+
+```{r devonport_takapuna, ref.label='block_chart_template'}
+```
+
+
+
+```{r select_franklin, results='asis'}
+chosen_lb <- "Franklin"
+pandoc.header(chosen_lb, level = 2)
+```
+
+```{r franklin, ref.label='block_chart_template'}
+```
+
+
+
+```{r select_henderson_massey, results='asis'}
+chosen_lb <- "Henderson-Massey"
+pandoc.header(chosen_lb, level = 2)
+```
+
+```{r henderson_massey, ref.label='block_chart_template'}
+```
+
+
+
+```{r select_hibiscus_and_bays, results='asis'}
+chosen_lb <- "Hibiscus and Bays"
+pandoc.header(chosen_lb, level = 2)
+```
+
+```{r hibiscus_and_bays, ref.label='block_chart_template'}
+```
+
+
