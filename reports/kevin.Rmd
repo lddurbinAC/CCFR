@@ -1,0 +1,69 @@
+---
+title: "kevin"
+output: html_document
+date: '2022-07-01'
+---
+
+
+```{r select_albert_eden, results='asis'}
+chosen_lb <- "Albert-Eden"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r albert_eden, ref.label='block_chart_template'}
+```
+
+
+```{r select_howick, results='asis'}
+chosen_lb <- "Howick"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r howick, ref.label='block_chart_template'}
+```
+
+
+```{r select_maungakiekie-tamaki, results='asis'}
+chosen_lb <- "Maungakiekie-Tamaki"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r maungakiekie-tamaki, ref.label='block_chart_template'}
+```
+
+
+```{r select_orakei, results='asis'}
+chosen_lb <- "Orakei"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r orakei, ref.label='block_chart_template'}
+```
+
+
+```{r select_puketapapa, results='asis'}
+chosen_lb <- "Puketapapa"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r puketapapa, ref.label='block_chart_template'}
+```
+
+
+```{r select_waiheke, results='asis'}
+chosen_lb <- "Waiheke"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r waiheke, ref.label='block_chart_template'}
+```
+
+
+```{r select_waitemata, results='asis'}
+chosen_lb <- "Waitemata"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r waitemata, ref.label='block_chart_template'}
+```
+

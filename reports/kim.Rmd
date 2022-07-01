@@ -1,0 +1,50 @@
+---
+title: "Facilities for Kim"
+output: html_document
+date: '2022-07-01'
+---
+
+
+```{r select_franklin, results='asis'}
+chosen_lb <- "Franklin"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r franklin, ref.label='block_chart_template'}
+```
+
+
+```{r select_mangere_otahuhu, results='asis'}
+chosen_lb <- "Mangere-Otahuhu"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r mangere_otahuhu, ref.label='block_chart_template'}
+```
+
+
+```{r select_manurewa, results='asis'}
+chosen_lb <- "Manurewa"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r manurewa, ref.label='block_chart_template'}
+```
+
+
+```{r select_otara_paptoetoe, results='asis'}
+chosen_lb <- "Otara-Papatoetoe"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r otara_paptoetoe, ref.label='block_chart_template'}
+```
+
+
+```{r select_papakura, results='asis'}
+chosen_lb <- "Papakura"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r papakura, ref.label='block_chart_template'}
+```

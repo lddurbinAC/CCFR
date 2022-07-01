@@ -1,0 +1,77 @@
+---
+title: "darryl"
+output: html_document
+date: '2022-07-01'
+---
+
+
+```{r select_devonport_takapuna, results='asis'}
+chosen_lb <- "Devonport-Takapuna"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r devonport_takapuna, ref.label='block_chart_template'}
+```
+
+
+```{r select_henderson_massey, results='asis'}
+chosen_lb <- "Henderson-Massey"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r henderson_massey, ref.label='block_chart_template'}
+```
+
+
+```{r select_hibiscus_and_bays, results='asis'}
+chosen_lb <- "Hibiscus and Bays"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r hibiscus_and_bays, ref.label='block_chart_template'}
+```
+
+
+```{r select_kaipatiki, results='asis'}
+chosen_lb <- "Kaipatiki"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r kaipatiki, ref.label='block_chart_template'}
+```
+
+
+```{r select_rodney, results='asis'}
+chosen_lb <- "Rodney"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r rodney, ref.label='block_chart_template'}
+```
+
+
+```{r select_upper_harbour, results='asis'}
+chosen_lb <- "Upper Harbour"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r upper_harbour, ref.label='block_chart_template'}
+```
+
+
+```{r select_waitakere_ranges, results='asis'}
+chosen_lb <- "Waitakere Ranges"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r waitakere_ranges, ref.label='block_chart_template'}
+```
+
+
+```{r select_whau, results='asis'}
+chosen_lb <- "Whau"
+pandoc.header(chosen_lb, level = 3)
+```
+
+```{r whau, ref.label='block_chart_template'}
+```

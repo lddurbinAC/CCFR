@@ -10,9 +10,8 @@ date: '2022-07-01'
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, fig.dim = c(8, 6),dpi=300)
 
-library(ggplot2) # Create Elegant Data Visualisations Using the Grammar of Graphics
 library(dplyr) # A Grammar of Data Manipulation
-library(patchwork) # The Composer of Plots
+library(ggplot2) # Create Elegant Data Visualisations Using the Grammar of Graphics
 library(ggtext) # Improved Text Rendering Support for 'ggplot2'
 library(pander) # An R 'Pandoc' Writer
 ```
@@ -26,6 +25,7 @@ choose_facilities <- function(local_board) {
     mutate(coord_x = (row_number()-1) %% 6, coord_y = floor((row_number()/6)-0.1))
 }
 
+# count the number of facilities per Local Board and service delivery model
 count_facilities <- function(local_board, delivery_model) {
   facilities |> 
     count(local_board, delivery_model) |> 
@@ -33,14 +33,15 @@ count_facilities <- function(local_board, delivery_model) {
     pull(n)
 }
 
+# create the visual, showing each facility as a coloured block
 build_block_visual <- function(facilities_blocks) {
   cols <- c("council led" = "#007CB9", "community led" = "#6E963C")
   community_count <- count_facilities(facilities_blocks$local_board[[1]], "community led")
   council_count <- count_facilities(facilities_blocks$local_board[[1]], "council led")
   
   ggplot(data = facilities_blocks, aes(x = coord_x, y = -coord_y)) +
-    geom_point(aes(colour = delivery_model),shape=15,size=27) +
-    geom_text(aes(label = stringr::str_wrap(name, 10)), colour = "white", size = 2.8, fontface = "bold") +
+    geom_point(aes(colour = delivery_model),shape=15,size=28) +
+    geom_text(aes(label = stringr::str_wrap(name, 13)), colour = "white", size = 2.7, fontface = "bold") +
     scale_x_continuous(limits = c(-0.5,6.5)) +
     scale_y_continuous(limits = c(-5.5,0.25)) +
     scale_colour_manual(values = cols) +
@@ -52,66 +53,47 @@ build_block_visual <- function(facilities_blocks) {
     ) 
 }
 
-path <- here::here("data")
+facilities <- readRDS(fs::dir_ls(here::here("data"), glob = "*.rds")) |> filter(local_board != "Great Barrier")
 
-facilities <- readRDS(fs::dir_ls(path, glob = "*.rds")) |> filter(local_board != "Great Barrier")
+ltp_metric_lb <- facilities |> 
+  count(local_board, delivery_model) |> 
+  with_groups(local_board, mutate, perc = n/sum(n))
 ```
 
 ## Introduction
-Welcome to the one-page guide on in-scope Connected Communities facilities for the FY22 LTP metric.
+
+Welcome to this one-page guide on in-scope Connected Communities facilities for the FY22 LTP metric quoted below:
+
+>The percentage of art facilities, community centres and hire venues network that is community led
+
+Use the navigation menu to the left to select your name, and then the sub-menu allows you to navigate to a Local Board of interest within your remit. There you will see the name of each in-scope facility within that Local Board, colour coded to indicate whether it is a Council-led or a community-led facility.
+
+Once you're satisfied with what is shown for each Local Board within your remit, be sure to return to the spreadsheet to mark that you have signed it off. If you have questions or instructions to modify the narrative, please provide these in the spreadsheet.
+
+For any questions about this data please contact Lee Durbin in the Insights Team: <lee.durbin@aucklandcouncil.govt.nz>
+
 
 ```{r block_chart_template, eval=FALSE}
-choose_facilities(chosen_lb) |> 
-  build_block_visual()
+choose_facilities(chosen_lb) |> build_block_visual()
 ```
 
 
-```{r select_albert_eden, results='asis'}
-chosen_lb <- "Albert-Eden"
-pandoc.header(chosen_lb, level = 2)
-```
+## **Kim**
 
-```{r albert_eden, ref.label='block_chart_template'}
-```
+```{r, child=c('kim.Rmd')}
 
-
-
-```{r select_devonport_takapuna, results='asis'}
-chosen_lb <- "Devonport-Takapuna"
-pandoc.header(chosen_lb, level = 2)
-```
-
-```{r devonport_takapuna, ref.label='block_chart_template'}
 ```
 
 
+## **Kevin**
 
-```{r select_franklin, results='asis'}
-chosen_lb <- "Franklin"
-pandoc.header(chosen_lb, level = 2)
-```
+```{r, child=c('kevin.Rmd')}
 
-```{r franklin, ref.label='block_chart_template'}
 ```
 
 
+## **Darryl**
 
-```{r select_henderson_massey, results='asis'}
-chosen_lb <- "Henderson-Massey"
-pandoc.header(chosen_lb, level = 2)
+```{r, child=c('darryl.Rmd')}
+
 ```
-
-```{r henderson_massey, ref.label='block_chart_template'}
-```
-
-
-
-```{r select_hibiscus_and_bays, results='asis'}
-chosen_lb <- "Hibiscus and Bays"
-pandoc.header(chosen_lb, level = 2)
-```
-
-```{r hibiscus_and_bays, ref.label='block_chart_template'}
-```
-
-
