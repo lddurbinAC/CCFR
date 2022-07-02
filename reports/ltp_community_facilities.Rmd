@@ -54,10 +54,6 @@ build_block_visual <- function(facilities_blocks) {
 }
 
 facilities <- readRDS(fs::dir_ls(here::here("data"), glob = "*.rds")) |> filter(local_board != "Great Barrier")
-
-ltp_metric_lb <- facilities |> 
-  count(local_board, delivery_model) |> 
-  with_groups(local_board, mutate, perc = n/sum(n))
 ```
 
 ## Introduction
@@ -74,26 +70,27 @@ For any questions about this data please contact Lee Durbin in the Insights Team
 
 
 ```{r block_chart_template, eval=FALSE}
-choose_facilities(chosen_lb) |> build_block_visual()
+choose_facilities(chosen_lb) |> 
+  build_block_visual()
 ```
 
 
 ## **Kim**
 
-```{r, child=c('kim.Rmd')}
+```{r, child=c('kim.Rmd'), eval=TRUE}
 
 ```
 
 
 ## **Kevin**
 
-```{r, child=c('kevin.Rmd')}
+```{r, child=c('kevin.Rmd'), eval=TRUE}
 
 ```
 
 
 ## **Darryl**
 
-```{r, child=c('darryl.Rmd')}
+```{r, child=c('darryl.Rmd'), eval=TRUE}
 
 ```
