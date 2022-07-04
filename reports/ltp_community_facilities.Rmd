@@ -53,7 +53,13 @@ build_block_visual <- function(facilities_blocks) {
     ) 
 }
 
-facilities <- readRDS(fs::dir_ls(here::here("data"), glob = "*.rds")) |> filter(local_board != "Great Barrier")
+facilities <- readRDS(fs::dir_ls(here::here("data"), glob = "*.rds")) |> 
+  filter(local_board != "Great Barrier") |> 
+  mutate(name = case_when(
+    name %in% c("Albert Park Caretaker's Cottage", "Smiths Avenue Clubrooms", "Takaanini") ~ paste0(name, "*"),
+    TRUE ~ name
+  ))
+  
 ```
 
 ## Introduction
@@ -62,7 +68,7 @@ Welcome to this one-page guide on in-scope Connected Communities facilities for 
 
 >The percentage of art facilities, community centres and hire venues network that is community led
 
-Use the navigation menu to the left to select your name, and then the sub-menu allows you to navigate to a Local Board of interest within your remit. There you will see the name of each in-scope facility within that Local Board, colour coded to indicate whether it is a Council-led or a community-led facility.
+Use the navigation menu to the left to select your name, and then the sub-menu allows you to navigate to a Local Board of interest within your remit. There you will see the name of each in-scope facility within that Local Board, colour coded to indicate whether it is a Council-led or a community-led facility. An asterik (*) next to the facility indicates that it was not included in last year's data, but has been included this year.
 
 Once you're satisfied with what is shown for each Local Board within your remit, be sure to return to the spreadsheet to mark that you have signed it off. If you have questions or instructions to modify the narrative, please provide these in the spreadsheet.
 
@@ -70,7 +76,7 @@ For any questions about this data please contact Lee Durbin in the Insights Team
 
 
 ```{r block_chart_template, eval=FALSE}
-choose_facilities(chosen_lb) |> 
+choose_facilities(chosen_lb) |>
   build_block_visual()
 ```
 
