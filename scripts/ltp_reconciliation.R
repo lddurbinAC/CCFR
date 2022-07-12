@@ -41,7 +41,6 @@ ltp_for_comparison <- ltp_facilities_list |>
     "Ponsonby Community Centre - Leys Institute Gymnasium", # duplicate & closed
     "Howick Brass Band", # band
     "Papakura Brass Band", # band
-    "North Shore Brass", # band
     "City of Manukau Pipe Band", # band
     "Manukau Concert Band (MCB)", #band
     "Papakura Pipe Band", #band
@@ -170,3 +169,5 @@ ltp_metric_lb_no_leases <- combined_facilities_list |>
     no_community_lease_percent = perc.x,
     variance_percent
   )
+
+saveRDS(combined_facilities_list, file = paste0(path, "/facilities_for_ltp.rds"))
