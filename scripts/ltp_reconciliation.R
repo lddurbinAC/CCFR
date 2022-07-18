@@ -114,7 +114,8 @@ combined_facilities_list <- left_join(
   facilities,
   by = c("name", "local_board", "delivery_model")
   ) |> 
-  bind_rows(new_facilities)
+  bind_rows(new_facilities) |> 
+  mutate(delivery_model = if_else(name == "Warkworth Town Hall", "community led", delivery_model)) # this facility's delivery model is a hybrid, but Darryl agreed to designate as community
 
 
 # Validate data -------------------------------------------------------------------
