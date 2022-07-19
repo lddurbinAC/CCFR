@@ -138,3 +138,25 @@ agreements <- left_join(agreements_db, agreements_verified) |>
     by = c("facility_type", "facility_id")
   )
 
+
+# Create funding table ----------------------------------------------------
+
+funding <- nina_fua_list |> 
+  select(facility_id, abs_funding_total, ldi_funding_total) |> 
+  assign_facility_type() |> 
+  left_join(
+    agreements |> select(agreement_id = id, facility_type, facility_id),
+    by = c("facility_type", "facility_id")
+  ) |> 
+  select(-c(facility_id, facility_type)) |> 
+  pivot_longer(1:2, names_to = "funding_type", values_to = "amount") |> 
+  mutate(service_level = case_when(
+    amount < 25000 ~ "Access",
+    amount < 75000 ~ "Activation",
+    amount >= 75000 ~ "Intervention",
+  ))
+
+
+# Create staff table and staff_bridge_table -------------------------------
+
+
