@@ -159,4 +159,25 @@ funding <- nina_fua_list |>
 
 # Create staff table and staff_bridge_table -------------------------------
 
+emails <- readr::read_csv(paste0(local_path, "/staff_emails.csv"), col_types = "cc")
 
+staff_data <- nina_fua_list |> 
+  select(facility_id, relationship_manager) |> 
+  assign_facility_type() |> 
+  left_join(
+    emails,
+    by = c("relationship_manager" = "staff_name")
+  ) |> 
+  select(everything(), email = staff_email, -relationship_manager) |> 
+  mutate(id = row_number())
+
+staff <- staff_data |> 
+  distinct(email) |> 
+  filter(!is.na(email)) |> 
+  mutate(id = row_number())
+
+staff_bridge_table <- staff_data |> 
+  left_join(
+    staff |> select(staff_id = id, email),
+    by = "email"
+    )
