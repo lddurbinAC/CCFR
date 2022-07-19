@@ -42,7 +42,7 @@ entities_with_attributes <- entities |> get_attributes()
 # nina_fua_list |> filter(is.na(facility_id)) # any newly-added facilities?
 
 
-# Add staffed and leased fields to facilities_attributes ------------------
+# Attributes: add staffed and leased fields to facilities_attributes ------------------
 
 existing_attributes <- read_file("facilities_attributes", "facilities_attributes", Sys.getenv("EXTERNAL_PATH")) |> 
   select(-c(staffed, partner_id)) |> 
@@ -57,8 +57,9 @@ attributes <- left_join(existing_attributes, new_attributes) |>
     across(closed:staffed, ~replace_na(.x, FALSE))
   )
 
+writexl::write_xlsx(attributes, paste0(local_path, "/facilities_attributes.xlsx"))
 
-# Create partners table and partners_bridge_table ---------------------------------------------------
+# Partners: create partners table and partners_bridge_table ---------------------------------------------------
 
 multi_site_partners <- nina_fua_list |> 
   filter(!is.na(provider_name)) |> 
@@ -88,6 +89,8 @@ partners <- multi_site_partners |>
   distinct(across(id:facility_type)) |> 
   bind_rows(single_site_partners)
 
+writexl::write_xlsx(partners, paste0(local_path, "/partners.xlsx"))
+
 partners_bridge_table <- multi_site_partners |> 
   select(partner_id = id, facility_type, facility_id) |> 
   bind_rows(
@@ -98,8 +101,10 @@ partners_bridge_table <- multi_site_partners |>
     .before = "partner_id"
   )
 
+writexl::write_xlsx(partners_bridge_table, paste0(local_path, "/partners_bridge_table.xlsx"))
 
-# Crate contacts table ----------------------------------------------------
+
+# Contacts: crate contacts table ----------------------------------------------------
 
 verified_contacts <- nina_fua_list |> 
   filter(!is.na(provider_name) & !is.na(facility_id)) |> 
@@ -120,8 +125,10 @@ contacts <- purrr::map_dfr(
 ) |> 
   unique()
 
+writexl::write_xlsx(contacts, paste0(local_path, "/contacts.xlsx"))
 
-# Create agreements table -------------------------------------------------
+
+# Agreements: create agreements table -------------------------------------------------
 
 agreements_db <- assets_with_attributes |> 
   filter(delivery_model == "Community led") |> 
@@ -138,8 +145,10 @@ agreements <- left_join(agreements_db, agreements_verified) |>
     by = c("facility_type", "facility_id")
   )
 
+writexl::write_xlsx(agreements, paste0(local_path, "/agreements.xlsx"))
 
-# Create funding table ----------------------------------------------------
+
+# Funding: create funding table ----------------------------------------------------
 
 funding <- nina_fua_list |> 
   select(facility_id, abs_funding_total, ldi_funding_total) |> 
@@ -156,8 +165,10 @@ funding <- nina_fua_list |>
     amount >= 75000 ~ "Intervention",
   ))
 
+writexl::write_xlsx(funding, paste0(local_path, "/funding.xlsx"))
 
-# Create staff table and staff_bridge_table -------------------------------
+
+# Staff: create staff table and staff_bridge_table -------------------------------
 
 emails <- readr::read_csv(paste0(local_path, "/staff_emails.csv"), col_types = "cc")
 
@@ -176,8 +187,12 @@ staff <- staff_data |>
   filter(!is.na(email)) |> 
   mutate(id = row_number())
 
+writexl::write_xlsx(staff, paste0(local_path, "/staff.xlsx"))
+
 staff_bridge_table <- staff_data |> 
   left_join(
     staff |> select(staff_id = id, email),
     by = "email"
     )
+
+writexl::write_xlsx(staff_bridge_table, paste0(local_path, "/staff_bridge_table.xlsx"))
