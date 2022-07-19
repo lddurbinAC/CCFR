@@ -12,9 +12,9 @@ read_file <- function(filename, sheetname, path) {
 
 # join a facilities table with its attributes, returning only facilities
 get_attributes <- function(db_table) {
-  attributes <- read_file("facilities_attributes", "Sheet1", Sys.getenv("EXTERNAL_PATH")) |> select(-id)
+  attributes <- read_file("facilities_attributes", "facilities_attributes", Sys.getenv("EXTERNAL_PATH")) |> select(-id)
   
   db_table |> 
     left_join(attributes, by = c("id" = "facility_id")) |> 
-    filter(!designation %in% c("Room", "Hybrid") & delivery_model == "Community led")
+    filter(!designation %in% c("Room", "Hybrid"))
 }
