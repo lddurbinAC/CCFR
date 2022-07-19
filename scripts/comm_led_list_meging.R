@@ -118,7 +118,7 @@ contacts <- purrr::map_dfr(
   c("site_contact", "chairperson", "reporting_provider"),
   prepare_contacts_data
 ) |> 
-  distinct(partner_id, role, .keep_all = TRUE)
+  unique()
 
 
 # Create agreements table -------------------------------------------------
