@@ -51,13 +51,23 @@ existing_attributes <- read_file("facilities_attributes", "facilities_attributes
 new_attributes <- nina_fua_list |> 
   select(facility_id, leased = community_lease, staffed)
 
-attributes <- left_join(existing_attributes, new_attributes) |> 
+community_facilities_attributes <- left_join(existing_attributes, new_attributes) |> 
   mutate(
     closed = as.logical(closed),
     across(closed:staffed, ~replace_na(.x, FALSE))
-  )
+  ) 
+  
+facilities_attributes <- read_file("facilities_attributes", "facilities_attributes", Sys.getenv("EXTERNAL_PATH")) |> 
+  filter(delivery_model != "Community led" | designation %in% c("Room", "Hybrid")) |> 
+  mutate(
+    leased = FALSE,
+    delivery_model = if_else(str_starts(delivery_model, "Community"), "Community led", delivery_model),
+    across(c(staffed,closed), as.logical)
+    ) |> 
+  bind_rows(community_facilities_attributes) |> 
+  select(-c(partner_id, agreement_type))
 
-writexl::write_xlsx(attributes, paste0(local_path, "/facilities_attributes.xlsx"))
+writexl::write_xlsx(facilities_attributes, paste0(local_path, "/facilities_attributes.xlsx"))
 
 # Partners: create partners table and partners_bridge_table ---------------------------------------------------
 
@@ -87,7 +97,8 @@ single_site_partners <- nina_fua_list |>
 
 partners <- multi_site_partners |> 
   distinct(across(id:facility_type)) |> 
-  bind_rows(single_site_partners)
+  bind_rows(single_site_partners) |> 
+  distinct(id, provider_name, provider_type)
 
 writexl::write_xlsx(partners, paste0(local_path, "/partners.xlsx"))
 
@@ -123,7 +134,8 @@ contacts <- purrr::map_dfr(
   c("site_contact", "chairperson", "reporting_provider"),
   prepare_contacts_data
 ) |> 
-  unique()
+  unique() |> 
+  mutate(id = row_number(), .before = "partner_id")
 
 writexl::write_xlsx(contacts, paste0(local_path, "/contacts.xlsx"))
 
@@ -136,12 +148,15 @@ agreements_db <- assets_with_attributes |>
 
 agreements_verified <- nina_fua_list |> 
   select(facility_id, agreement_term, valid_from = agreement_commencement_date) |> 
-  mutate(valid_to = valid_from + years(agreement_term)-days(1))
+  mutate(
+    valid_to = valid_from + years(agreement_term)-days(1),
+    across(where(is.POSIXct), ~as_date(.x))
+    )
 
-agreements <- left_join(agreements_db, agreements_verified) |> 
+agreements <- left_join(agreements_db, agreements_verified, by = "facility_id") |> 
   mutate(id = row_number(), .before = "agreement_type") |> 
   left_join(
-    partners |> select(partner_id = id, facility_id, facility_type),
+    partners_bridge_table |> distinct(across(-id)),
     by = c("facility_type", "facility_id")
   )
 
@@ -159,11 +174,15 @@ funding <- nina_fua_list |>
   ) |> 
   select(-c(facility_id, facility_type)) |> 
   pivot_longer(1:2, names_to = "funding_type", values_to = "amount") |> 
-  mutate(service_level = case_when(
+  mutate(
+    id = row_number(),
+    service_level = case_when(
     amount < 25000 ~ "Access",
     amount < 75000 ~ "Activation",
     amount >= 75000 ~ "Intervention",
-  ))
+  ),
+  .before = "agreement_id"
+  )
 
 writexl::write_xlsx(funding, paste0(local_path, "/funding.xlsx"))
 
@@ -180,12 +199,12 @@ staff_data <- nina_fua_list |>
     by = c("relationship_manager" = "staff_name")
   ) |> 
   select(everything(), email = staff_email, -relationship_manager) |> 
-  mutate(id = row_number())
+  mutate(id = row_number(), .before = "facility_id")
 
 staff <- staff_data |> 
   distinct(email) |> 
   filter(!is.na(email)) |> 
-  mutate(id = row_number())
+  mutate(id = row_number(), .before = "email")
 
 writexl::write_xlsx(staff, paste0(local_path, "/staff.xlsx"))
 
@@ -193,6 +212,7 @@ staff_bridge_table <- staff_data |>
   left_join(
     staff |> select(staff_id = id, email),
     by = "email"
-    )
+    ) |> 
+  select(-email)
 
 writexl::write_xlsx(staff_bridge_table, paste0(local_path, "/staff_bridge_table.xlsx"))
