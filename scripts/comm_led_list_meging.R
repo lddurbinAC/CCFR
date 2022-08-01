@@ -22,7 +22,6 @@ prepare_contacts_data <- function(contact_role) {
     rename(name = 2, email_address = 3, phone_number = 4)
 }
 
-
 local_path <- here::here("data")
 external_path <- "C:/Users/durbinl/Auckland Council/CC Insights & Analysis Team - File Storage"
 
