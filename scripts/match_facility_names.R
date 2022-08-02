@@ -1,5 +1,5 @@
 library(dplyr) # A Grammar of Data Manipulation
-library(readxl)
+library(readxl) # Read Excel Files
 
 # this should extract your username from the R project file path
 username <- stringr::str_split(here::here(), "/")[[1]][3]
@@ -7,13 +7,13 @@ username <- stringr::str_split(here::here(), "/")[[1]][3]
 # make sure you have the SharePoint File Storage sync'd to your machine
 sharepoint_path <- paste0("C:/Users/", username, "/Auckland Council/CC Insights & Analysis Team - File Storage/")
 
-# list the Excel files we want to read, and the sheet we need from each file
-files <- c("VH_data", "AC SharePoint data", "CP_Access_data")
-sheets <- c("1.0 Monthly Summary Report", "A&C SharePoint datafeed", "CP Access")
+files <- c("VH_data", "AC SharePoint data", "CP_Access_data") # list the Excel files we want to read
+sheets <- c("1.0 Monthly Summary Report", "A&C SharePoint datafeed", "CP Access") #list the sheet we need from each file
+skip_rows = c(2,0,0) # list the rows to skip in each sheet
 
 # save each Excel file's desired sheet as a named list item
 participant_data <- purrr::pmap(
-  list(..1 = purrr::set_names(files), ..2 = sheets, ..3 = c(2,0,0)),
+  list(..1 = purrr::set_names(files), ..2 = sheets, ..3 = skip_rows,
   .f = ~read_excel(
     path = paste0(sharepoint_path, ..1, ".xlsx"),
     sheet = ..2,
@@ -22,4 +22,6 @@ participant_data <- purrr::pmap(
   )
 )
 
+# read the names table from the CCPFR
 ccpfr_names <- read_excel(here::here("data/names.xlsx"))
+
