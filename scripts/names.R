@@ -66,11 +66,25 @@ alternate_names <- facilities |>
   select(facility_id, facility_type, name = alternate_name) |> 
   mutate(role = "alternate") 
 
-all_names <- alternate_names |> 
+facilities_attributes <- readxl::read_excel(paste0(local_path, "/facilities_attributes.xlsx")) |> 
+  mutate(facility_type = str_to_lower(facility_type)) |> 
+  select(id, facility_id, facility_type)
+
+names <- alternate_names |> 
   bind_rows(facilities) |> 
+  left_join(facilities_attributes, by = c("facility_type", "facility_id")) |> 
+  filter(!is.na(id)) |> 
   mutate(
+    facilities_attributes_id = id,
+    id = row_number(),
     role = if_else(is.na(role), "primary", role)
-    )
+    ) |> 
+  select(
+    id,
+    value = name,
+    role,
+    facilities_attributes_id
+  )
 
 new_facilities <- john_data_amended |> 
   left_join(facilities, by = "name") |> 
