@@ -1,5 +1,5 @@
 library(dplyr) # A Grammar of Data Manipulation
-library(readxl) # Read Excel Files
+library(stringr) # Simple, Consistent Wrappers for Common String Operations
 
 # load custom helper functions
 source(here::here("scripts/functions.R"))
@@ -17,3 +17,10 @@ participant_data <- purrr::pmap(
 # read the names table from the CCPFR
 ccpfr_names <- read_excel(here::here("data/names.xlsx"))
 
+# separate out facility names and room names
+participant_data$CP_Access_data |> 
+  select(facility_name_room_name) |> 
+  mutate(
+    facility_name = word(facility_name_room_name, 1, sep = fixed("-")),
+    room_name = word(facility_name_room_name, 2, sep = fixed("-"))
+    ) |> View()
