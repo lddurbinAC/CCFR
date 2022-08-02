@@ -9,18 +9,19 @@ get_file_storage_path <- function() {
   return(paste0("C:/Users/", username, file_storage_partial))
 }
 
-# read Excel file, select a sheet, clean column names, skip rows
-read_file <- function(filename, sheetname, path) {
+# read Excel file, select a sheet, clean column names, skip rows if necessary
+get_excel_data <- function(path, filename, sheetname, skip_rows = 0) {
   readxl::read_excel(
-    path = paste0(path, "/", filename, ".xlsx"),
+    path = paste0(get_file_storage_path(), filename, ".xlsx"),
     sheet = sheetname,
+    skip = skip_rows,
     .name_repair = janitor::make_clean_names
   )
 }
 
 # join a facilities table with its attributes, returning only facilities
 get_attributes <- function(db_table) {
-  attributes <- read_file("facilities_attributes", "facilities_attributes", get_file_storage_path()) |> select(-id)
+  attributes <- get_excel_data("facilities_attributes", "facilities_attributes", get_file_storage_path()) |> select(-id)
   
   db_table |> 
     left_join(attributes, by = c("id" = "facility_id")) |> 
