@@ -2,7 +2,7 @@ library(dplyr)
 library(readxl)
 
 # provide your username here
-username <- "durbinl"
+username <- stringr::str_split(here::here(), "/")[[1]][3]
 
 # make sure you have the SharePoint File Storage sync'd to your machine
 sharepoint_path <- paste0("C:/Users/", username, "/Auckland Council/CC Insights & Analysis Team - File Storage")
