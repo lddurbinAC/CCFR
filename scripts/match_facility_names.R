@@ -1,14 +1,12 @@
 # Setup -------------------------------------------------------------------
 
-# install any required packages that we don't have
-packages <- c("dplyr", "stringr")
-install.packages(setdiff(packages, rownames(installed.packages())))
-
-library(dplyr) # A Grammar of Data Manipulation
-library(stringr) # Simple, Consistent Wrappers for Common String Operations
-
 # load custom helper functions
 source(here::here("scripts/functions.R"))
+
+# check packages are installed, then load them
+get_packages(c("dplyr", "stringr"))
+library(dplyr) # A Grammar of Data Manipulation
+library(stringr) # Simple, Consistent Wrappers for Common String Operations
 
 
 # Load data ---------------------------------------------------------------

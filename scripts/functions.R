@@ -3,18 +3,30 @@ readRenviron(".Renviron")
 
 # check if the user has their environment variables set up, help them if not
 check_environment_variable <- function(variable_names) {
+  get_packages("cli")
+  
   if(any(Sys.getenv(variable_names) == "")) {
     stop(
-      paste0("Environment variables are missing: ", variable_names),
-      "Please read set-up vignette to configure your system."
+      cli::cli_alert_warning(paste0("Environment variables are missing: ", variable_names)),
+      cli::cli_alert_warning("Please read set-up vignette to configure your system.")
     )
   }
 }
 
+# Install any packages as needed
+get_packages <- function(packages) {
+  install.packages(
+    setdiff(
+      packages, 
+      rownames(installed.packages())
+      )
+    )
+}
 
 # safely compose the full path to the SharePoint File Storage document library
 get_file_storage_path <- function() {
   check_environment_variable(c("SHAREPOINT_FILE_STORAGE"))
+  get_packages("stringr")
   
   file_storage_partial <- Sys.getenv("SHAREPOINT_FILE_STORAGE")
   username <- stringr::str_split(here::here(), "/")[[1]][3]
@@ -25,6 +37,8 @@ get_file_storage_path <- function() {
 
 # read Excel file, select a sheet, clean column names, skip rows if necessary
 get_excel_data <- function(path, filename, sheetname, skip_rows = 0) {
+  get_packages("readxl")
+  
   readxl::read_excel(
     path = paste0(get_file_storage_path(), filename, ".xlsx"),
     sheet = sheetname,
