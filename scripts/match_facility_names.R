@@ -1,7 +1,7 @@
 # Setup -------------------------------------------------------------------
 
 # load custom helper functions
-source(here::here("scripts/functions.R"))
+source("scripts/functions.R")
 
 # check packages are installed, then load them
 packages <- c("dplyr", "stringr", "purrr")
@@ -18,7 +18,7 @@ sheets <- c("1.0 Monthly Summary Report", "A&C SharePoint datafeed", "CP Access"
 rows_to_skip = c(2,0,0) # list the rows to skip in each sheet
 
 # load the desired sheets from the three Excel files as a named list (assuming nobody has these files open!)
-# problems? We need to sync the SharePoint doc library to our local machine
+# problems? We need to sync the SharePoint doc library to our local machine. Maybe write a check_ function for this?
 data <- purrr::pmap(
   list(..1 =  purrr::set_names(files), ..2 = sheets, ..3 = rows_to_skip),
        .f = ~get_excel_data(filename = ..1, sheetname = ..2, skip_rows = ..3)
