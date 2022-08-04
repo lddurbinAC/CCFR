@@ -4,7 +4,7 @@
 source("scripts/functions.R")
 
 # check packages are installed, then load them
-packages <- c("dplyr", "stringr", "purrr")
+packages <- c("dplyr", "stringr", "purrr", "lubridate")
 get_started(packages)
 
 
@@ -31,10 +31,26 @@ data <- pmap(
 # separate out facility names and room names for CP Access data
 cp_access <- data$CP_Access_data |> 
   mutate(
+    month = word(reporting_month, 1, sep=fixed("-")),
+    month_as_number = dmy(paste0("1 ", month, " 2022")) |> month(),
+    quarter = case_when(
+      month_as_number %in% c(7,8,9) ~ "Q1",
+      month_as_number %in% c(10,11,12) ~ "Q2",
+      month_as_number %in% c(1,2,3) ~ "Q3",
+      month_as_number %in% c(4,5,6) ~ "Q4"
+    ),
+    year_as_number = word(reporting_month, 2, sep=fixed("-")) |> as.double(),
+    previous_year = year_as_number-1,
+    next_year = year_as_number+1,
+    year = if_else(
+      month_as_number < 7,
+      paste0("FY", previous_year, "/", year_as_number),
+      paste0("FY", year_as_number, "/", next_year)
+      ),
     facility_name = word(facility_name_room_name, 1, sep = fixed("-")) |> str_trim(),
     room_name = word(facility_name_room_name, 2, sep = fixed("-")) |> str_trim()
     ) |> 
-  select(facility_name, room_name)
+  select(facility_name, room_name, month, quarter, year)
 
 data$VH_data |> 
   select(facility_name, room_name = sub_facility_name)
