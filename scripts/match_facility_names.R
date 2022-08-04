@@ -11,6 +11,7 @@ get_started(packages)
 # Load data ---------------------------------------------------------------
 
 # read the names table from the CCPFR
+get_packages("readxl")
 ccpfr_names <- readxl::read_excel(here::here("data/names.xlsx"))
 
 files <- c("VH_data", "AC SharePoint data", "CP_Access_data") # list the Excel files we want to read
@@ -19,8 +20,8 @@ rows_to_skip = c(2,0,0) # list the rows to skip in each sheet
 
 # load the desired sheets from the three Excel files as a named list (assuming nobody has these files open!)
 # problems? We need to sync the SharePoint doc library to our local machine. Maybe write a check_ function for this?
-data <- purrr::pmap(
-  list(..1 =  purrr::set_names(files), ..2 = sheets, ..3 = rows_to_skip),
+data <- pmap(
+  list(..1 =  set_names(files), ..2 = sheets, ..3 = rows_to_skip),
        .f = ~get_excel_data(filename = ..1, sheetname = ..2, skip_rows = ..3)
   )
 
