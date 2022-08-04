@@ -12,10 +12,10 @@ prep_data <- function(df, type) {
 }
 
 local_path <- here::here("data")
-external_path <- "C:/Users/durbinl/Auckland Council/CC Insights & Analysis Team - File Storage"
+external_path <- get_file_storage_path()
 
 john_data <- readxl::read_excel(
-  path = paste0(external_path, "/Facility_Partner_Names.xlsx"),
+  path = paste0(external_path, "Facility_Partner_Names.xlsx"),
   sheet = "CCPFR list")
   
 # Make sure primary names in John's list match CCPFR so we can obtain aliases

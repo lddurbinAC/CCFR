@@ -11,7 +11,7 @@ get_started(packages)
 # Load data ---------------------------------------------------------------
 
 # read the names table from the CCPFR
-get_packages("readxl")
+get_packages(c("readxl", "here"))
 ccpfr_names <- readxl::read_excel(here::here("data/names.xlsx"))
 
 files <- c("VH_data", "AC SharePoint data", "CP_Access_data") # list the Excel files we want to read
