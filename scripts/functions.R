@@ -1,6 +1,10 @@
 # load the environment variables
 readRenviron(".Renviron")
 
+get_started <- function() {
+  
+}
+
 # check if the user has their environment variables set up, help them if not
 check_environment_variable <- function(variable_names) {
   get_packages("cli")
@@ -27,6 +31,7 @@ get_packages <- function(packages) {
 get_file_storage_path <- function() {
   check_environment_variable(c("SHAREPOINT_FILE_STORAGE"))
   get_packages("stringr")
+  get_packages("here")
   
   file_storage_partial <- Sys.getenv("SHAREPOINT_FILE_STORAGE")
   username <- stringr::str_split(here::here(), "/")[[1]][3]
