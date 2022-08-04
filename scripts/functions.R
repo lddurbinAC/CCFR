@@ -1,8 +1,14 @@
 # load the environment variables
 readRenviron(".Renviron")
 
-get_started <- function() {
+# install required packages (plus purrr), then load them
+get_started <- function(package_names) {
+  package_names_with_purrr <- append(package_names, "purrr")
+  get_packages(package_names_with_purrr)
   
+  for(p in package_names) {
+    library(p, character.only = TRUE)
+  }
 }
 
 # check if the user has their environment variables set up, help them if not
@@ -26,6 +32,7 @@ get_packages <- function(packages) {
       )
     )
 }
+
 
 # safely compose the full path to the SharePoint File Storage document library
 get_file_storage_path <- function() {
