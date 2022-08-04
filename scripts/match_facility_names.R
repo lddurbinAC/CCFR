@@ -3,14 +3,9 @@
 # load custom helper functions
 source(here::here("scripts/functions.R"))
 
+# check packages are installed, then load them
 packages <- c("dplyr", "stringr", "purrr")
 get_started(packages)
-
-# check packages are installed, then load them
-get_packages(c("dplyr", "stringr", "purrr"))
-library(dplyr) # A Grammar of Data Manipulation
-library(stringr) # Simple, Consistent Wrappers for Common String Operations
-library(purrr) # Functional Programming Tools
 
 
 # Load data ---------------------------------------------------------------
