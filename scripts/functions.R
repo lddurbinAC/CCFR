@@ -52,7 +52,7 @@ get_file_storage_path <- function() {
 
 # read Excel file, select a sheet, clean column names, skip rows if necessary
 get_excel_data <- function(path, filename, sheetname, skip_rows = 0) {
-  get_packages("readxl")
+  get_packages(c("readxl", "janitor"))
   
   readxl::read_excel(
     path = paste0(get_file_storage_path(), filename, ".xlsx"),
