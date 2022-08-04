@@ -1,15 +1,6 @@
 # load the environment variables
 readRenviron(".Renviron")
 
-# install required packages (plus purrr), then load them
-get_started <- function(package_names) {
-  package_names_with_purrr <- append(package_names, "purrr")
-  get_packages(package_names_with_purrr)
-  
-  for(p in package_names) {
-    library(p, character.only = TRUE)
-  }
-}
 
 # check if the user has their environment variables set up, help them if not
 check_environment_variable <- function(variable_names) {
@@ -22,6 +13,18 @@ check_environment_variable <- function(variable_names) {
     )
   }
 }
+
+
+# install required packages (plus purrr), then load them
+get_started <- function(package_names) {
+  package_names_with_purrr <- append(package_names, "purrr")
+  get_packages(package_names_with_purrr)
+  
+  for(p in package_names) {
+    library(p, character.only = TRUE)
+  }
+}
+
 
 # Install any packages as needed
 get_packages <- function(packages) {
