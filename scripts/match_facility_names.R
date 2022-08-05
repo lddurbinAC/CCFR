@@ -32,7 +32,9 @@ data <- pmap(
 cp_access <- data$CP_Access_data |> 
   mutate(
     month = word(reporting_month, 1, sep=fixed("-")),
-    month_as_number = dmy(paste0("1 ", month, " 2022")) |> month(),
+    date_placeholder = dmy(paste0("1 ", month, " 2022")),
+    days_in_month = days_in_month(date_placeholder),
+    month_as_number = month(date_placeholder),
     quarter = case_when(
       month_as_number %in% c(7,8,9) ~ "Q1",
       month_as_number %in% c(10,11,12) ~ "Q2",
@@ -48,9 +50,11 @@ cp_access <- data$CP_Access_data |>
       paste0("FY", year_as_number, "/", next_year)
       ),
     facility_name = word(facility_name_room_name, 1, sep = fixed("-")) |> str_trim(),
-    room_name = word(facility_name_room_name, 2, sep = fixed("-")) |> str_trim()
+    room_name = word(facility_name_room_name, 2, sep = fixed("-")) |> str_trim(),
+    average_hours_per_week = (booked_hrs/days_in_month)*7,
+    utilisation = booked_hrs/(days_in_month*10)
     ) |> 
-  select(facility_name, room_name, month, quarter, year)
+  select(facility_name, room_name, month, quarter, year, average_hours_per_week, utilisation)
 
 data$VH_data |> 
   select(facility_name, room_name = sub_facility_name)
