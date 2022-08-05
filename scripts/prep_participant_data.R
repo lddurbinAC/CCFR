@@ -14,7 +14,7 @@ get_data_files <- function() {
   rows_to_skip = c(2,0,0) # list the rows to skip in each sheet
   
   # problems? We need to sync the SharePoint doc library to our local machine. Maybe write a check_ function for this?
-  pwalk(
+  pmap(
     list(..1 =  set_names(files), ..2 = sheets, ..3 = rows_to_skip),
     .f = ~get_excel_data(filename = ..1, sheetname = ..2, skip_rows = ..3)
   ) |> saveRDS(here::here("data/vh_cpAccess_AC.rds"))
@@ -28,7 +28,7 @@ get_packages(c("readxl", "here"))
 ccpfr_names <- readxl::read_excel(here::here("data/ccpfr_data/names.xlsx"))
 
 # uncomment the next line if we need to read in the Excel files again
-#get_data_files()
+get_data_files()
 
 # read the data as stored in the rds file
 data <- readRDS(here::here("data/vh_cpAccess_AC.rds"))
