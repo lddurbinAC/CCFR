@@ -7,23 +7,31 @@ source("scripts/functions.R")
 packages <- c("dplyr", "stringr", "purrr", "lubridate")
 get_started(packages)
 
+# load the desired sheets from the three Excel files as a named list (assuming nobody has these files open!)
+get_data_files <- function() {
+  files <- c("VH_data", "AC SharePoint data", "CP_Access_data") # list the Excel files we want to read
+  sheets <- c("1.0 Monthly Summary Report", "A&C SharePoint datafeed", "CP Access") #list the sheet we need from each file
+  rows_to_skip = c(2,0,0) # list the rows to skip in each sheet
+  
+  # problems? We need to sync the SharePoint doc library to our local machine. Maybe write a check_ function for this?
+  pwalk(
+    list(..1 =  set_names(files), ..2 = sheets, ..3 = rows_to_skip),
+    .f = ~get_excel_data(filename = ..1, sheetname = ..2, skip_rows = ..3)
+  ) |> saveRDS(here::here("data/vh_cpAccess_AC.rds"))
+}
+
 
 # Load data ---------------------------------------------------------------
 
 # read the names table from the CCPFR
 get_packages(c("readxl", "here"))
-ccpfr_names <- readxl::read_excel(here::here("data/names.xlsx"))
+ccpfr_names <- readxl::read_excel(here::here("data/ccpfr_data/names.xlsx"))
 
-files <- c("VH_data", "AC SharePoint data", "CP_Access_data") # list the Excel files we want to read
-sheets <- c("1.0 Monthly Summary Report", "A&C SharePoint datafeed", "CP Access") #list the sheet we need from each file
-rows_to_skip = c(2,0,0) # list the rows to skip in each sheet
+# uncomment the next line if we need to read in the Excel files again
+#get_data_files()
 
-# load the desired sheets from the three Excel files as a named list (assuming nobody has these files open!)
-# problems? We need to sync the SharePoint doc library to our local machine. Maybe write a check_ function for this?
-data <- pmap(
-  list(..1 =  set_names(files), ..2 = sheets, ..3 = rows_to_skip),
-       .f = ~get_excel_data(filename = ..1, sheetname = ..2, skip_rows = ..3)
-  )
+# read the data as stored in the rds file
+data <- readRDS(here::here("data/vh_cpAccess_AC.rds"))
 
 
 # Prepare data ------------------------------------------------------------
