@@ -60,15 +60,61 @@ cp_access <- data$CP_Access_data |>
     facility_name = word(facility_name_room_name, 1, sep = fixed("-")) |> str_trim(),
     room_name = word(facility_name_room_name, 2, sep = fixed("-")) |> str_trim(),
     average_hours_per_week = (booked_hrs/days_in_month)*7,
-    utilisation = booked_hrs/(days_in_month*10)
+    utilisation = booked_hrs/(days_in_month*10),
+    source = "CP Access"
     ) |> 
-  select(facility_name, room_name, month, quarter, year, average_hours_per_week, utilisation)
+  select(
+    facility_name,
+    room_name,
+    month,
+    quarter,
+    year,
+    average_hours_per_week,
+    utilisation
+    )
 
 data$VH_data |> 
-  select(facility_name, room_name = sub_facility_name)
+  select(
+    facility_name,
+    room_name = sub_facility_name,
+    month = month_mm,
+    quarter,
+    year = fin_year,
+    attendees,
+    booking_hours)
 
 data$`AC SharePoint data` |> 
-  select(partner_name)
+  mutate(
+    month = word(month, 2, sep = fixed(" - "))
+  ) |> 
+  select(partner_name, month, quarter, year, total_attendees_participants)
 
-# test <- left_join(cp_access, ccpfr_names, by = c("facility_name" = "value")) |> filter(!is.na(id) & role == "alternate")
-# left_join(test, ccpfr_names, by = "facilities_attributes_id") |> filter(role.y == "primary")
+
+# John's requirements...
+# 
+# -Partner or Facility name:
+#   
+#   as per the CCFPR matching with the raw data facility columns
+# 
+# -Local Board:
+#   
+#   For both VH data and AC Sharepoint data - we'll use CCPFR Local Board data instead for consistency, even though LB is already provided in the raw data.
+# 
+# 
+# -Average Hours Per Week:
+#   For VH data -  as per the "Average Hours per week" raw data column, so no further calculations needed
+# For AC Sharepoint data - there is NO Average Hours raw data collected, so this column isn't used for AC data
+# 
+# 
+# 
+# -Utilisation:
+# For VH data - calculated using the  "Booking Hours" raw data column and the "Gross Standard Available Hours" raw data column (using the calculation
+# 
+# Booking Hours/Gross Standard Available Hours)
+# For AC Sharepoint data - NO raw data collected so this column isn't used for AC data
+# 
+# 
+# 
+# -Room: eventually we'd use the space data from the CCPFR for consistency but in the meanwhile:
+# For VH data - as per the "Sub Facility Name" raw data column
+# For AC Sharepoint data - NO raw data collected so this column isn't used for AC data
