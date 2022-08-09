@@ -17,7 +17,7 @@ get_data_files <- function() {
   pmap(
     list(..1 =  set_names(files), ..2 = sheets, ..3 = rows_to_skip),
     .f = ~get_excel_data(filename = ..1, sheetname = ..2, skip_rows = ..3)
-  ) |> saveRDS(here("data/vh_cpAccess_AC.rds"))
+  ) |> saveRDS(here::here("data/vh_cpAccess_AC.rds"))
 }
 
 
@@ -25,13 +25,13 @@ get_data_files <- function() {
 
 # read the names table from the CCPFR
 get_packages(c("readxl", "here"))
-ccpfr_names <- readxl::read_excel(here("data/ccpfr_data/names.xlsx"))
+ccpfr_names <- readxl::read_excel(here::here("data/ccpfr_data/names.xlsx"))
 
 # uncomment the next line if we need to read in the Excel files again
 # get_data_files()
 
 # read the data as stored in the rds file
-data <- readRDS(here("data/vh_cpAccess_AC.rds"))
+data <- readRDS(here::here("data/vh_cpAccess_AC.rds"))
 
 
 # Prepare data ------------------------------------------------------------
