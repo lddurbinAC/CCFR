@@ -89,6 +89,8 @@ cp_access <- get_named_item("CP_Access_data") |>
   select_columns(c("room_name", "average_hours_per_week", "utilisation"), "CP Access") |> 
   align_names()
 
+cp_access |> filter(is.na(primary_name)) |> distinct(facility_name)
+
 # prepare the Venue Hire data
 vh <- get_named_item("VH_data") |> 
   mutate(
@@ -100,8 +102,12 @@ vh <- get_named_item("VH_data") |>
   select_columns(c("room_name", "attendees", "booking_hours", "average_hours_per_week", "utilisation", "source"), "VH") |> 
   align_names()
 
+vh |> filter(is.na(primary_name)) |> distinct(facility_name)
+
 # prepare the Arts & Culture data
 ac <- get_named_item("AC SharePoint data") |> 
   mutate(month = word(month, 2, sep = fixed(" - ")), facility_name = partner_name) |> 
   select_columns(c("total_attendees_participants"), "AC") |> 
   align_names()
+
+ac |> filter(is.na(primary_name)) |> distinct(facility_name)
