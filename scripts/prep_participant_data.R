@@ -46,7 +46,7 @@ data <- readRDS(here::here("data/vh_cpAccess_AC.rds"))
 
 # Prepare data ------------------------------------------------------------
 
-# separate out facility names and room names for CP Access data
+# prepare the CP Access data
 cp_access <- data$CP_Access_data |> 
   mutate(
     month = word(reporting_month, 1, sep=fixed("-")),
@@ -65,6 +65,7 @@ cp_access <- data$CP_Access_data |>
     ) |> 
   col_selection(c("room_name", "average_hours_per_week", "utilisation"), "CP Access")
 
+# prepare the Venue Hire data
 vh <- data$VH_data |> 
   mutate(
     utilisation = booking_hours/gross_standard_available_hours,
@@ -74,6 +75,7 @@ vh <- data$VH_data |>
   ) |> 
   col_selection(c("room_name", "attendees", "booking_hours", "average_hours_per_week", "utilisation", "source"), "VH")
 
+# prepare the Arts & Culture data
 ac <- data$`AC SharePoint data` |> 
   mutate(month = word(month, 2, sep = fixed(" - ")), facility_name = partner_name) |> 
   col_selection(c("total_attendees_participants"), "AC")
