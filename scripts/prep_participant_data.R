@@ -93,6 +93,7 @@ cp_access |> filter(is.na(primary_name)) |> distinct(facility_name)
 
 # prepare the Venue Hire data
 vh <- get_named_item("VH_data") |> 
+  filter(facility_name != "Unknown") |> 
   mutate(
     utilisation = booking_hours/gross_standard_available_hours,
     month = month_mm,
