@@ -27,14 +27,7 @@ get_data_files <- function() {
 col_selection <- function(df, additional_cols, data_src) {
     df |> 
     mutate(source = data_src) |> 
-    select(
-      facility_name,
-      month,
-      quarter,
-      year,
-      source,
-      additional_cols
-    )
+    select(facility_name, month, quarter, year, source, additional_cols)
 }
 
 
