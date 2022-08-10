@@ -23,31 +23,54 @@ get_data_files <- function() {
   ) |> saveRDS(here::here("data/vh_cpAccess_AC.rds"))
 }
 
+
+# retrieve a named data source from the list of data sources
+get_named_item <- function(name) {
+  data <- readRDS(here::here("data/vh_cpAccess_AC.rds"))
+  
+  data |> 
+    pluck(name)
+}
+
+
 # select columns from the data frame
-col_selection <- function(df, additional_cols, data_src) {
+select_columns <- function(df, additional_cols, data_src) {
     df |> 
     mutate(source = data_src) |> 
-    select(facility_name, month, quarter, year, source, additional_cols)
+    select(facility_name, month, quarter, year, source, all_of(additional_cols))
+}
+
+
+# standardise the facility names using the CCPFR data
+align_names <- function(df) {
+  get_packages(c("readxl"))
+  ccpfr_names <- readxl::read_excel(here::here("data/ccpfr_data/names.xlsx"))
+  
+  all_names <- ccpfr_names |> 
+    select(facility_name = value, facilities_attributes_id)
+  
+  primary_names <- ccpfr_names |> 
+    filter(role == "primary") |> 
+    select(primary_name = value, primary_facility_id = facilities_attributes_id)
+  
+  df |> 
+    left_join(all_names, by = "facility_name") |> 
+    left_join(primary_names, by = c("facilities_attributes_id" = "primary_facility_id"))
 }
 
 
 # Load data ---------------------------------------------------------------
 
-# read the names table from the CCPFR
-get_packages(c("readxl", "here"))
-ccpfr_names <- readxl::read_excel(here::here("data/ccpfr_data/names.xlsx"))
-
 # *** uncomment the next line if we need to read in the Excel files again ***
 # get_data_files()
-
-# read the data as stored in the rds file
-data <- readRDS(here::here("data/vh_cpAccess_AC.rds"))
 
 
 # Prepare data ------------------------------------------------------------
 
+get_packages(c("here"))
+
 # prepare the CP Access data
-cp_access <- data$CP_Access_data |> 
+cp_access <- get_named_item("CP_Access_data") |> 
   mutate(
     month = word(reporting_month, 1, sep=fixed("-")),
     month_as_number = match(month, month.abb),
@@ -63,19 +86,22 @@ cp_access <- data$CP_Access_data |>
     average_hours_per_week = (booked_hrs/days_in_month(month_as_number))*7,
     utilisation = booked_hrs/(days_in_month(month_as_number)*10),
     ) |> 
-  col_selection(c("room_name", "average_hours_per_week", "utilisation"), "CP Access")
+  select_columns(c("room_name", "average_hours_per_week", "utilisation"), "CP Access") |> 
+  align_names()
 
 # prepare the Venue Hire data
-vh <- data$VH_data |> 
+vh <- get_named_item("VH_data") |> 
   mutate(
     utilisation = booking_hours/gross_standard_available_hours,
     month = month_mm,
     year = fin_year,
     room_name = sub_facility_name
   ) |> 
-  col_selection(c("room_name", "attendees", "booking_hours", "average_hours_per_week", "utilisation", "source"), "VH")
+  select_columns(c("room_name", "attendees", "booking_hours", "average_hours_per_week", "utilisation", "source"), "VH") |> 
+  align_names()
 
 # prepare the Arts & Culture data
-ac <- data$`AC SharePoint data` |> 
+ac <- get_named_item("AC SharePoint data") |> 
   mutate(month = word(month, 2, sep = fixed(" - ")), facility_name = partner_name) |> 
-  col_selection(c("total_attendees_participants"), "AC")
+  select_columns(c("total_attendees_participants"), "AC") |> 
+  align_names()
