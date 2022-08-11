@@ -1,9 +1,14 @@
-library(dplyr) # A Grammar of Data Manipulation
-library(stringr) # Simple, Consistent Wrappers for Common String Operations
-library(lubridate) # Make Dealing with Dates a Little Easier
-library(tidyr) # Tidy Messy Data
+# Setup -------------------------------------------------------------------
 
-source(here::here("scripts/functions.R"))
+# load custom helper functions
+source("scripts/functions.R")
+
+get_started(c("here","dplyr", "stringr", "lubridate", "tidyr"))
+
+local_data <- paste0(here::here("data/ccpfr_data"), "/")
+
+
+# Functions for this script -----------------------------------------------
 
 prep_data <- function(df, type) {
  df |> 
@@ -11,13 +16,22 @@ prep_data <- function(df, type) {
     mutate(facility_type := {{type}})
 }
 
-local_path <- here::here("data")
-external_path <- get_file_storage_path()
 
-john_data <- readxl::read_excel(
-  path = paste0(external_path, "Facility_Partner_Names.xlsx"),
-  sheet = "CCPFR list")
-  
+# Load data ---------------------------------------------------------------
+
+john_data <- get_excel_data("Facility_Partner_Names", "CCPFR list")
+
+# get tables exported from Access database
+assets <- get_excel_data("assets", "assets", path = local_data) |> prep_data("asset")
+spaces <- get_excel_data("spaces", "spaces", path = local_data) |> prep_data("space")
+entities <- get_excel_data("entities", "entities", path = local_data) |> prep_data("entity")
+facilities_attributes <- get_excel_data("facilities_attributes", "facilities_attributes", path = local_data) |> 
+  mutate(facility_type = str_to_lower(facility_type)) |> 
+  select(id, facility_id, facility_type)
+
+
+# Prep data ---------------------------------------------------------------
+
 # Make sure primary names in John's list match CCPFR so we can obtain aliases
 john_data_amended <- john_data |> 
   mutate(name = case_when(
@@ -50,11 +64,6 @@ john_data_amended <- john_data |>
     TRUE ~ name
   ))
 
-# get tables exported from Access database
-assets <- read_file("assets", "assets", external_path) |> prep_data("asset")
-spaces <- read_file("spaces", "spaces", external_path) |> prep_data("space")
-entities <- read_file("entities", "entities", external_path) |> prep_data("entity")
-
 # Union CCPFR facilities tables
 facilities <- bind_rows(assets, spaces, entities)
 
@@ -65,10 +74,6 @@ alternate_names <- facilities |>
   filter(!is.na(alternate_name)) |> 
   select(facility_id, facility_type, name = alternate_name) |> 
   mutate(role = "alternate") 
-
-facilities_attributes <- readxl::read_excel(paste0(local_path, "/facilities_attributes.xlsx")) |> 
-  mutate(facility_type = str_to_lower(facility_type)) |> 
-  select(id, facility_id, facility_type)
 
 names <- alternate_names |> 
   bind_rows(facilities) |> 
