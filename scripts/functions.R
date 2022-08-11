@@ -51,11 +51,11 @@ get_file_storage_path <- function() {
 
 
 # read Excel file, select a sheet, clean column names, skip rows if necessary
-get_excel_data <- function(filename, sheetname, skip_rows = 0) {
+get_excel_data <- function(filename, sheetname, skip_rows = 0, path = get_file_storage_path()) {
   get_packages(c("readxl", "janitor"))
   
   readxl::read_excel(
-    path = paste0(get_file_storage_path(), filename, ".xlsx"),
+    path = paste0(path, filename, ".xlsx"),
     sheet = sheetname,
     skip = skip_rows,
     .name_repair = janitor::make_clean_names
