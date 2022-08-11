@@ -1,7 +1,7 @@
 # load the environment variables
 readRenviron(".Renviron")
 
-
+# **HELPERS PACKAGE: internal function**
 # check if the user has their environment variables set up, help them if not
 check_environment_variable <- function(variable_names) {
   get_packages("cli")
@@ -15,6 +15,7 @@ check_environment_variable <- function(variable_names) {
 }
 
 
+# **HELPERS PACKAGE: exported function**
 # install required packages (plus purrr), then load them
 get_started <- function(package_names) {
   package_names_with_purrr <- append(package_names, "purrr")
@@ -26,6 +27,7 @@ get_started <- function(package_names) {
 }
 
 
+# **HELPERS PACKAGE: exported function**
 # Install any packages as needed
 get_packages <- function(packages) {
   install.packages(
@@ -37,6 +39,7 @@ get_packages <- function(packages) {
 }
 
 
+# **HELPERS PACKAGE: exported function**
 # safely compose the full path to the SharePoint File Storage document library
 get_file_storage_path <- function() {
   check_environment_variable(c("SHAREPOINT_FILE_STORAGE"))
@@ -50,8 +53,9 @@ get_file_storage_path <- function() {
 }
 
 
-# read Excel file, select a sheet, clean column names, skip rows if necessary
-get_excel_data <- function(filename, sheetname, skip_rows = 0, path = get_file_storage_path()) {
+# **HELPERS PACKAGE: exported function**
+# read Excel an file from SharePoint File Storage, optionally name a sheet, skip rows, and change file path
+get_excel_data <- function(filename, sheetname = "Sheet1", skip_rows = 0, path = get_file_storage_path()) {
   get_packages(c("readxl", "janitor"))
   
   readxl::read_excel(
@@ -62,6 +66,7 @@ get_excel_data <- function(filename, sheetname, skip_rows = 0, path = get_file_s
   )
 }
 
+# **CCPFR PACKAGE**
 # join a facilities table with its attributes, returning only facilities
 get_attributes <- function(db_table) {
   attributes <- get_excel_data("facilities_attributes", "facilities_attributes", get_file_storage_path()) |> select(-id)
