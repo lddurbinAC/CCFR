@@ -3,8 +3,15 @@
 # load custom helper functions
 source("scripts/functions.R")
 
+# uncomment these lines if you don't have devtools and/or awhina
+# install.packages("devtools")
+# devtools::install_github("lddurbinAC/awhina")
+library(awhina)
+
+#create_environment_variable("SHAREPOINT_FILE_STORAGE")
+
 # check packages are installed, then load them
-packages <- c("dplyr", "stringr", "purrr", "lubridate")
+packages <- c("dplyr", "stringr", "purrr", "lubridate", "readxl", "janitor")
 get_started(packages)
 
 
@@ -16,7 +23,6 @@ get_data_files <- function() {
   sheets <- c("1.0 Monthly Summary Report", "A&C SharePoint datafeed", "CP Access") #list the sheet we need from each file
   rows_to_skip = c(2,0,0) # list the rows to skip in each sheet
   
-  # problems? We need to sync the SharePoint doc library to our local machine. Maybe write a check_ function for this?
   pmap(
     list(..1 =  set_names(files), ..2 = sheets, ..3 = rows_to_skip),
     .f = ~get_excel_data(filename = ..1, sheetname = ..2, skip_rows = ..3)
@@ -44,7 +50,6 @@ select_columns <- function(df, additional_cols, data_src) {
 # **CCPFR PACKAGE**
 # standardise the facility names using the CCPFR data
 align_names <- function(df) {
-  get_packages(c("readxl"))
   ccpfr_names <- readxl::read_excel(here::here("data/ccpfr_data/names.xlsx"))
   
   all_names <- ccpfr_names |> 
@@ -68,8 +73,6 @@ align_names <- function(df) {
 
 # Prepare data ------------------------------------------------------------
 
-get_packages(c("here"))
-
 # prepare the CP Access data
 cp_access <- get_named_item("CP_Access_data") |> 
   mutate(
@@ -90,7 +93,7 @@ cp_access <- get_named_item("CP_Access_data") |>
   select_columns(c("room_name", "average_hours_per_week", "utilisation"), "CP Access") |> 
   align_names()
 
-cp_access |> filter(is.na(primary_name)) |> distinct(facility_name)
+cp_access |> filter(is.na(primary_name)) |> distinct(facility_name) # exceptions
 
 # prepare the Venue Hire data
 vh <- get_named_item("VH_data") |> 
@@ -106,7 +109,7 @@ vh <- get_named_item("VH_data") |>
   select_columns(c("room_name", "attendees", "booking_hours", "average_hours_per_week", "utilisation", "source"), "VH") |> 
   align_names()
 
-vh |> filter(is.na(primary_name)) |> distinct(facility_name)
+vh |> filter(is.na(primary_name)) |> distinct(facility_name) # exceptions
 
 # prepare the Arts & Culture data
 ac <- get_named_item("AC SharePoint data") |> 
@@ -114,4 +117,4 @@ ac <- get_named_item("AC SharePoint data") |>
   select_columns(c("total_attendees_participants"), "AC") |> 
   align_names()
 
-ac |> filter(is.na(primary_name)) |> distinct(facility_name)
+ac |> filter(is.na(primary_name)) |> distinct(facility_name) # exceptions
