@@ -47,24 +47,6 @@ select_columns <- function(df, additional_cols, data_src) {
 }
 
 
-# **CCPFR PACKAGE**
-# standardise the facility names using the CCPFR data
-align_names <- function(df) {
-  ccpfr_names <- readxl::read_excel(here::here("data/ccpfr_data/names.xlsx"))
-  
-  all_names <- ccpfr_names |> 
-    select(facility_name = value, facilities_attributes_id)
-  
-  primary_names <- ccpfr_names |> 
-    filter(role == "primary") |> 
-    select(primary_name = value, primary_facility_id = facilities_attributes_id)
-  
-  df |> 
-    left_join(all_names, by = "facility_name") |> 
-    left_join(primary_names, by = c("facilities_attributes_id" = "primary_facility_id"))
-}
-
-
 # Load data ---------------------------------------------------------------
 
 # *** uncomment the next line if we need to read in the Excel files again ***
