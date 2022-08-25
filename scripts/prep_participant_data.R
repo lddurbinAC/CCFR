@@ -7,13 +7,10 @@ source("scripts/functions.R")
 # install.packages("devtools")
 # devtools::install_github("lddurbinAC/awhina")
 library(awhina)
-
-#create_environment_variable("SHAREPOINT_FILE_STORAGE")
-
-# check packages are installed, then load them
 packages <- c("dplyr", "stringr", "purrr", "lubridate", "readxl", "janitor")
 get_started(packages)
 
+#create_environment_variable("SHAREPOINT_FILE_STORAGE")
 
 # Functions for this script -----------------------------------------------
 
@@ -29,7 +26,6 @@ get_data_files <- function() {
   ) |> saveRDS(here::here("data/vh_cpAccess_AC.rds"))
 }
 
-
 # retrieve a named data source from the list of data sources
 get_named_item <- function(name) {
   data <- readRDS(here::here("data/vh_cpAccess_AC.rds"))
@@ -38,7 +34,6 @@ get_named_item <- function(name) {
     pluck(name)
 }
 
-
 # select columns from the data frame
 select_columns <- function(df, additional_cols, data_src) {
     df |> 
@@ -46,12 +41,10 @@ select_columns <- function(df, additional_cols, data_src) {
     select(facility_name, month, quarter, year, source, all_of(additional_cols))
 }
 
-
 # Load data ---------------------------------------------------------------
 
 # *** uncomment the next line if we need to read in the Excel files again ***
 # get_data_files()
-
 
 # Prepare data ------------------------------------------------------------
 
@@ -79,9 +72,7 @@ cp_access |> filter(is.na(primary_name)) |> distinct(facility_name) # exceptions
 
 # prepare the Venue Hire data
 vh <- get_named_item("VH_data") |> 
-  filter(
-    !facility_name %in% c("Unknown", "Pakuranga Leisure Centre")
-    ) |> 
+  filter(!facility_name %in% c("Unknown", "Pakuranga Leisure Centre")) |> 
   mutate(
     utilisation = booking_hours/gross_standard_available_hours,
     month = month_mm,
