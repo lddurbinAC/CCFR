@@ -7,7 +7,7 @@ source("scripts/functions.R")
 # install.packages("devtools")
 # devtools::install_github("lddurbinAC/awhina")
 library(awhina)
-packages <- c("dplyr", "stringr", "purrr", "lubridate", "readxl", "janitor")
+packages <- c("stringr", "purrr", "lubridate", "dplyr")
 get_started(packages)
 
 #create_environment_variable("SHAREPOINT_FILE_STORAGE")
