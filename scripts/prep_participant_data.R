@@ -22,7 +22,7 @@ get_data_files <- function() {
   
   pmap(
     list(..1 =  set_names(files), ..2 = sheets, ..3 = rows_to_skip),
-    .f = ~get_excel_data(filename = ..1, sheetname = ..2, skip_rows = ..3)
+    .f = ~get_excel_file(filename = ..1, sheetname = ..2, skip_rows = ..3)
   ) |> saveRDS(here::here("data/vh_cpAccess_AC.rds"))
 }
 
