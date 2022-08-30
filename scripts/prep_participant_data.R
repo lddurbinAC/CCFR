@@ -38,7 +38,32 @@ get_named_item <- function(name) {
 select_columns <- function(df, additional_cols, data_src) {
     df |> 
     mutate(source = data_src) |> 
-    select(facility_name, month, quarter, year, source, all_of(additional_cols))
+    select(
+      source,
+      month,
+      quarter,
+      year,
+      facility_name = primary_name,
+      local_board,
+      funding_level,
+      participants,
+      # service_delivery_model,
+      room_name,
+      all_of(additional_cols)
+      )
+}
+
+funding_level <- function(df) {
+  regionally_funded <- readr::read_csv(here::here("data/regionally_funded_facilities.csv"), col_types = "c")
+  
+  df |> 
+    mutate(
+      funding_level = if_else(
+        facility_name %in% (regionally_funded |> pull(facility_name)),
+        "regionally funded",
+        "Locally funded"
+      )
+    )
 }
 
 # Load data ---------------------------------------------------------------
@@ -65,10 +90,9 @@ cp_access <- get_named_item("CP_Access_data") |>
     average_hours_per_week = (booked_hrs/days_in_month(month_as_number))*7,
     utilisation = booked_hrs/(days_in_month(month_as_number)*10),
     ) |> 
-  select_columns(c("room_name", "average_hours_per_week", "utilisation"), "CP Access") |> 
-  align_names()
-
-cp_access |> filter(is.na(primary_name)) |> distinct(facility_name) # exceptions
+  align_names() |> 
+  funding_level() |> 
+  select_columns(c("room_name", "average_hours_per_week", "utilisation", "booked_hrs"), "CP Access") 
 
 # prepare the Venue Hire data
 vh <- get_named_item("VH_data") |> 
@@ -78,16 +102,23 @@ vh <- get_named_item("VH_data") |>
     month = month_mm,
     year = fin_year,
     room_name = sub_facility_name
-  ) |> 
-  select_columns(c("room_name", "attendees", "booking_hours", "average_hours_per_week", "utilisation", "source"), "VH") |> 
-  align_names()
-
-vh |> filter(is.na(primary_name)) |> distinct(facility_name) # exceptions
+  ) |>
+  align_names() |> 
+  funding_level() |> 
+  select_columns(c("room_name", "booking_hours", "average_hours_per_week", "utilisation", "source"), "VH") 
 
 # prepare the Arts & Culture data
 ac <- get_named_item("AC SharePoint data") |> 
-  mutate(month = word(month, 2, sep = fixed(" - ")), facility_name = partner_name) |> 
-  select_columns(c("total_attendees_participants"), "AC") |> 
-  align_names()
+  mutate(
+    month = word(month, 2, sep = fixed(" - ")),
+    facility_name = partner_name,
+    room_name = NA_character_,
+    average_hours_per_week = NA_real_,
+    utilisation = NA_real_,
+    booking_hours = NA_real_
+    ) |> 
+  align_names() |> 
+  funding_level() |> 
+  select_columns(c("utilisation", "average_hours_per_week", "booking_hours"), "AC")
 
-ac |> filter(is.na(primary_name)) |> distinct(facility_name) # exceptions
+bind_rows(cp_access, vh, ac)

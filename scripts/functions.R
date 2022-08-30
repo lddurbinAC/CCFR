@@ -11,6 +11,7 @@ get_attributes <- function(db_table) {
 # **CCPFR PACKAGE**
 # standardise the facility names using the CCPFR data
 align_names <- function(df) {
+  # pull in Partners names table too
   ccpfr_names <- readxl::read_excel(here::here("data/ccpfr_data/names.xlsx"))
   
   all_names <- ccpfr_names |> 
@@ -22,5 +23,9 @@ align_names <- function(df) {
   
   df |> 
     left_join(all_names, by = "facility_name") |> 
-    left_join(primary_names, by = c("facilities_attributes_id" = "primary_facility_id"))
+    left_join(primary_names, by = c("facilities_attributes_id" = "primary_facility_id")) |> 
+    # we need to remove this mutate and replace it with a unit test
+    mutate(
+      primary_name = if_else(is.na(primary_name), facility_name, primary_name)
+    )
 }
