@@ -35,7 +35,7 @@ get_named_item <- function(name) {
 }
 
 # select columns from the data frame
-select_columns <- function(df, additional_cols, data_src) {
+select_columns <- function(df, data_src) {
     df |> 
     mutate(source = data_src) |> 
     select(
@@ -46,11 +46,21 @@ select_columns <- function(df, additional_cols, data_src) {
       facility_name = primary_name,
       local_board,
       funding_level,
+      service_delivery_model,
       participants,
-      # service_delivery_model,
-      room_name,
-      all_of(additional_cols)
+      booking_hours,
+      average_hours_per_week,
+      utilisation,
+      room
       )
+}
+
+service_delivery_model <- function(df) {
+  facilities_attributes <- get_excel_file("facilities_attributes", path = here::here("data/ccpfr_data")) |> 
+    select(id, service_delivery_model = delivery_model)
+  
+  df |> 
+    left_join(facilities_attributes, by = c("facilities_attributes_id" = "id"))
 }
 
 funding_level <- function(df) {
@@ -75,6 +85,7 @@ funding_level <- function(df) {
 
 # prepare the CP Access data
 cp_access <- get_named_item("CP_Access_data") |> 
+  select(-service_delivery_model) |> # won't be needed when we remove the extraneous columns
   mutate(
     month = word(reporting_month, 1, sep=fixed("-")),
     month_as_number = match(month, month.abb),
@@ -86,13 +97,15 @@ cp_access <- get_named_item("CP_Access_data") |>
       paste0("FY", year_as_number, "/", year_as_number+1)
       ),
     facility_name = word(facility_name_room_name, 1, sep = fixed("-")) |> str_trim(),
-    room_name = word(facility_name_room_name, 2, sep = fixed("-")) |> str_trim(),
+    room = word(facility_name_room_name, 2, sep = fixed("-")) |> str_trim(),
     average_hours_per_week = (booked_hrs/days_in_month(month_as_number))*7,
     utilisation = booked_hrs/(days_in_month(month_as_number)*10),
+    booking_hours = booked_hrs
     ) |> 
   align_names() |> 
+  service_delivery_model() |> 
   funding_level() |> 
-  select_columns(c("room_name", "average_hours_per_week", "utilisation", "booked_hrs"), "CP Access") 
+  select_columns("CP Access") 
 
 # prepare the Venue Hire data
 vh <- get_named_item("VH_data") |> 
@@ -101,24 +114,24 @@ vh <- get_named_item("VH_data") |>
     utilisation = booking_hours/gross_standard_available_hours,
     month = month_mm,
     year = fin_year,
-    room_name = sub_facility_name
+    room = sub_facility_name
   ) |>
   align_names() |> 
   funding_level() |> 
-  select_columns(c("room_name", "booking_hours", "average_hours_per_week", "utilisation", "source"), "VH") 
+  select_columns("VH") 
 
 # prepare the Arts & Culture data
 ac <- get_named_item("AC SharePoint data") |> 
   mutate(
     month = word(month, 2, sep = fixed(" - ")),
     facility_name = partner_name,
-    room_name = NA_character_,
+    room = NA_character_,
     average_hours_per_week = NA_real_,
     utilisation = NA_real_,
     booking_hours = NA_real_
     ) |> 
   align_names() |> 
   funding_level() |> 
-  select_columns(c("utilisation", "average_hours_per_week", "booking_hours"), "AC")
+  select_columns("AC")
 
-bind_rows(cp_access, vh, ac)
+consolidated_dataset <- bind_rows(cp_access, vh, ac)
