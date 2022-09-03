@@ -12,7 +12,7 @@ get_attributes <- function(db_table) {
 # standardise the facility names using the CCPFR data
 align_names <- function(df) {
   # pull in Partners names table too
-  ccpfr_names <- readxl::read_excel(here::here("data/ccpfr_data/names.xlsx"))
+  ccpfr_names <- awhina::get_excel_file("names")
   
   all_names <- ccpfr_names |> 
     select(facility_name = value, facilities_attributes_id)

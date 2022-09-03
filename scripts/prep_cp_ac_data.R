@@ -1,9 +1,8 @@
-# Setup -------------------------------------------------------------------
+## ---- script_setup -------------------------------------------------------------------
 
 # load custom helper functions
-source("scripts/functions.R")
+source(here::here("scripts/functions.R"))
 
-# uncomment these lines if you don't have devtools and/or awhina
 # install.packages("devtools")
 # devtools::install_github("lddurbinAC/awhina")
 library(awhina)
@@ -12,13 +11,11 @@ get_started(packages)
 
 #create_environment_variable("SHAREPOINT_FILE_STORAGE")
 
-# Functions for this script -----------------------------------------------
-
-# load the desired sheets from the three Excel files as a named list (assuming nobody has these files open!)
+## ---- get_data_files -----------------------------------------------
 get_data_files <- function() {
-  files <- c("VH_data", "AC SharePoint data", "CP_Access_data") # list the Excel files we want to read
-  sheets <- c("1.0 Monthly Summary Report", "A&C SharePoint datafeed", "CP Access") #list the sheet we need from each file
-  rows_to_skip = c(2,0,0) # list the rows to skip in each sheet
+  files <- c("VH_data", "AC SharePoint data", "CP_Access_data")
+  sheets <- c("1.0 Monthly Summary Report", "A&C SharePoint datafeed", "CP Access")
+  rows_to_skip = c(2,0,0) 
   
   pmap(
     list(..1 =  set_names(files), ..2 = sheets, ..3 = rows_to_skip),
@@ -26,7 +23,7 @@ get_data_files <- function() {
   ) |> saveRDS(here::here("data/vh_cpAccess_AC.rds"))
 }
 
-# retrieve a named data source from the list of data sources
+## ---- get_named_item -----------------------------------------------
 get_named_item <- function(name) {
   data <- readRDS(here::here("data/vh_cpAccess_AC.rds"))
   
@@ -34,7 +31,7 @@ get_named_item <- function(name) {
     pluck(name)
 }
 
-# select columns from the data frame
+## ---- select_columns -----------------------------------------------
 select_columns <- function(df, data_src) {
     df |> 
     mutate(source = data_src) |> 
@@ -55,6 +52,7 @@ select_columns <- function(df, data_src) {
       )
 }
 
+## ---- service_delivery_model -----------------------------------------------
 service_delivery_model <- function(df) {
   facilities_attributes <- get_excel_file("facilities_attributes", path = here::here("data/ccpfr_data")) |> 
     select(id, service_delivery_model = delivery_model)
@@ -63,6 +61,7 @@ service_delivery_model <- function(df) {
     left_join(facilities_attributes, by = c("facilities_attributes_id" = "id"))
 }
 
+## ---- funding_level -----------------------------------------------
 funding_level <- function(df) {
   regionally_funded <- readr::read_csv(here::here("data/regionally_funded_facilities.csv"), col_types = "c")
   
@@ -76,14 +75,10 @@ funding_level <- function(df) {
     )
 }
 
-# Load data ---------------------------------------------------------------
+## ---- load_data -----------------------------------------------
+get_data_files()
 
-# *** uncomment the next line if we need to read in the Excel files again ***
-# get_data_files()
-
-# Prepare data ------------------------------------------------------------
-
-# prepare the CP Access data
+## ---- prepare_cp_access_data -----------------------------------------------
 cp_access <- get_named_item("CP_Access_data") |> 
   select(-service_delivery_model) |> # won't be needed when we remove the extraneous columns
   mutate(
@@ -107,7 +102,7 @@ cp_access <- get_named_item("CP_Access_data") |>
   funding_level() |> 
   select_columns("CP Access") 
 
-# prepare the Venue Hire data
+## ---- prepare_vh_data -----------------------------------------------
 vh <- get_named_item("VH_data") |> 
   filter(!facility_name %in% c("Unknown", "Pakuranga Leisure Centre")) |> 
   mutate(
@@ -120,7 +115,7 @@ vh <- get_named_item("VH_data") |>
   funding_level() |> 
   select_columns("VH") 
 
-# prepare the Arts & Culture data
+## ---- prepare_ac_data -----------------------------------------------
 ac <- get_named_item("AC SharePoint data") |> 
   mutate(
     month = word(month, 2, sep = fixed(" - ")),
@@ -134,4 +129,5 @@ ac <- get_named_item("AC SharePoint data") |>
   funding_level() |> 
   select_columns("AC")
 
+## ---- bind_data_objects -----------------------------------------------
 consolidated_dataset <- bind_rows(cp_access, vh, ac)
